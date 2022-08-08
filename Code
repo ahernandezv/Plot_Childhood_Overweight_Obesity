@@ -1,0 +1,60 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import io
+sns.set(style="whitegrid")  # set style
+
+data = io.StringIO(""""Department"  2019  2021
+"Amazonas" 2.1 2.7
+"Ancash" 6.2 7.5
+"Apurimac" 2 3.8
+"Arequipa" 5.4 7.5
+"Ayacucho" 4.2 4.3
+"Cajamarca" 4.7 3.2
+"Cusco" 2.4 3.5
+"Huancavelica" 2.8 1
+"Huanuco" 3.5 3.4
+"Ica" 8.7 11.8
+"Junin" 3.1 4.6
+"La Libertad" 7.1 10
+"Lambayeque" 4.5 6.4
+"Lima" 10 12.2
+"Loreto" 1.7 2.3
+"Madre de Dios" 5.3 6.1
+"Moquegua" 11.8 13.9
+"Pasco" 2.3 4.7
+"Piura" 6.8 7.1
+"Puno" 4 5.2
+"San Martin" 3.7 3.8
+"Tacna" 17.6 20.6
+"Tumbes" 7.3 7.8
+"Ucayali" 2.1 1.9
+"Overall" 6.4 7.8""")
+
+df = pd.read_csv(data, sep="\s+", quotechar='"')
+df = df.set_index("Department").sort_values("2021")
+df["change"] = df["2021"] / df["2019"] - 1
+
+
+plt.figure(figsize=(8,9))
+y_range = np.arange(1, len(df.index) + 1)
+colors = np.where(df['2021'] > df['2019'], '#d9d9d9', '#d57883')
+plt.hlines(y=y_range, xmin=df['2019'], xmax=df['2021'],
+           color=colors, lw=10)
+plt.scatter(df['2019'], y_range, color='#0096d7', s=200, label='2019', zorder=3)
+plt.scatter(df['2021'], y_range, color='#003953', s=200 , label='2021', zorder=3)
+for (_, row), y in zip(df.iterrows(), y_range):
+    plt.annotate(f"{row['change']:+.0%}", (max(row["2019"], row["2021"]) + 1, y - 0.25))
+plt.legend(ncol=2, bbox_to_anchor=(1., 1.01), loc="lower right", frameon=False)
+
+plt.yticks(y_range, df.index)
+plt.title("Prevalence 2019: 6.4%\nPrevalence 2021: 7.8%", loc='left')
+plt.xlabel("Prevalence (%)")
+plt.ylabel("Deparment")
+plt.xlim(0, 25)
+plt.gcf().subplots_adjust(left=0.35)
+plt.tight_layout()
+
+plt.savefig("C:/Users/Akram/Dropbox/Publicaciones/Obesidad_Infantil_2019vs2020/Figure_1.png", format="png", dpi=800)
+plt.show()
